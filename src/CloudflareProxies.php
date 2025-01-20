@@ -61,6 +61,7 @@ class CloudflareProxies
     {
         return collect(array_merge($data['result']['ipv4_cidrs'], $data['result']['ipv6_cidrs']))
             ->unique()
-            ->values();
+            ->values()
+            ->toArray();
     }
 }
