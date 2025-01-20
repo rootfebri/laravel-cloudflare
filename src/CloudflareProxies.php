@@ -54,14 +54,12 @@ class CloudflareProxies
      *     success: bool,
      *     errors: array,
      *     messages: array
-     * } $json The input array containing 'ipv4_cidrs' and 'ipv6_cidrs' keys.
+     * } $data The input array containing 'ipv4_cidrs' and 'ipv6_cidrs' keys.
      * @return array The combined array of IPv4 and IPv6 CIDRs.
      */
-    protected function parseIps(array $json): array
+    protected function parseIps(array $data): array
     {
-        unset($json['result']['etag']);
-
-        return collect(array_merge(...$json['result']))
+        return collect(array_merge($data['result']['ipv4_cidrs'], $data['result']['ipv6_cidrs']))
             ->unique()
             ->values();
     }
