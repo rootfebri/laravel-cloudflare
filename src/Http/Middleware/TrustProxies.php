@@ -19,6 +19,7 @@ class TrustProxies extends Middleware
      */
     public function handle(Request $request, Closure $next)
     {
+        echo 'TrustProxies';
         if (Config::get('laravelcloudflare.replace_ip') === true) {
             $this->setRemoteAddr($request);
         }
@@ -35,6 +36,9 @@ class TrustProxies extends Middleware
             $request->server->set('REMOTE_ADDR', $ip);
         } elseif (($ip = $request->header('X-Forwarded-For')) !== null) {
             $request->server->set('REMOTE_ADDR', $ip);
+        } else {
+            echo "Cf-Connecting-Ip: {$request->header('Cf-Connecting-Ip')}";
+            echo "X-Forwarded-For: {$request->header('X-Forwarded-For')}";
         }
     }
 
