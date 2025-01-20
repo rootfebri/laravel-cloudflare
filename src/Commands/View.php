@@ -5,6 +5,7 @@ namespace Monicahq\Cloudflare\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Factory as Cache;
 use Illuminate\Contracts\Config\Repository as Config;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class View extends Command
 {
@@ -24,6 +25,8 @@ class View extends Command
 
     /**
      * Execute the console command.
+     *
+     * @throws InvalidArgumentException
      */
     public function handle(Cache $cache, Config $config): void
     {

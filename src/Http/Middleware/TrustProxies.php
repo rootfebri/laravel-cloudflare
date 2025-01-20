@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Monicahq\Cloudflare\LaravelCloudflare;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TrustProxies extends Middleware
 {
     /**
      * Handle an incoming request.
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * @throws HttpException
      */
     public function handle(Request $request, Closure $next)
     {
@@ -42,7 +43,7 @@ class TrustProxies extends Middleware
      */
     protected function setTrustedProxyIpAddresses(Request $request): void
     {
-        if ((bool) Config::get('laravelcloudflare.enabled')) {
+        if (Config::get('laravelcloudflare.enabled')) {
             $this->setTrustedProxyCloudflare($request);
         }
 

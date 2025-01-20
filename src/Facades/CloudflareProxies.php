@@ -5,7 +5,7 @@ namespace Monicahq\Cloudflare\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static array load(int $type = \Monicahq\Cloudflare\CloudflareProxies::IP_VERSION_ANY)
+ * @method static array load()
  *
  * @see \Monicahq\Cloudflare\CloudflareProxies
  */

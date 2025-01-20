@@ -2,6 +2,7 @@
 
 namespace Monicahq\Cloudflare;
 
+use Exception;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\Client\Factory as HttpClient;
 use Illuminate\Support\Facades\Http;
@@ -10,27 +11,6 @@ use UnexpectedValueException;
 
 class CloudflareProxies
 {
-    /**
-     * Use IPv4 addresses.
-     *
-     * @var int
-     */
-    public const IP_VERSION_4 = 1 << 0;
-
-    /**
-     * Use IPv6 addresses.
-     *
-     * @var int
-     */
-    public const IP_VERSION_6 = 1 << 1;
-
-    /**
-     * Use any IP addresses.
-     *
-     * @var int
-     */
-    public const IP_VERSION_ANY = self::IP_VERSION_4 | self::IP_VERSION_6;
-
     /**
      * Create a new instance of CloudflareProxies.
      */
@@ -42,20 +22,9 @@ class CloudflareProxies
     /**
      * Retrieve Cloudflare proxies list.
      */
-    public function load(int $type = self::IP_VERSION_ANY): array
+    public function load(): array
     {
-        $proxies = [];
-
-        if ((bool) ($type & self::IP_VERSION_4)) {
-            $proxies = $this->retrieve($this->config->get('laravelcloudflare.ipv4-path'));
-        }
-
-        if ((bool) ($type & self::IP_VERSION_6)) {
-            $proxies6 = $this->retrieve($this->config->get('laravelcloudflare.ipv6-path'));
-            $proxies = array_merge($proxies, $proxies6);
-        }
-
-        return $proxies;
+        return $this->retrieve($this->config->get('laravelcloudflare.path'));
     }
 
     /**
@@ -64,14 +33,13 @@ class CloudflareProxies
     protected function retrieve(string $name): array
     {
         try {
-            $url = Str::of($this->config->get('laravelcloudflare.url', 'https://api.cloudflare.com/client/v4/ips'))->finish('/').$name;
-
+            $url = Str::of($this->config->get('laravelcloudflare.url', 'https://api.cloudflare.com'))->finish('/').$name;
             $response = Http::get($url)->throw();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new UnexpectedValueException('Failed to load trust proxies from Cloudflare server.', 1, $e);
         }
 
-        return array_filter($this->parseIps($response->json()));
+        return $this->parseIps($response->json());
     }
 
     /**
@@ -91,6 +59,10 @@ class CloudflareProxies
      */
     protected function parseIps(array $json): array
     {
-        return array_merge($json['ipv4_cidrs'], $json['ipv6_cidrs']);
+        unset($json['result']['etag']);
+
+        return collect(array_merge(...$json['result']))
+            ->unique()
+            ->values();
     }
 }

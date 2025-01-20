@@ -9,10 +9,8 @@ final class LaravelCloudflare
 {
     /**
      * The callback that should be used to get the proxies addresses.
-     *
-     * @var \Closure|null
      */
-    protected static $getProxiesCallback;
+    protected static ?Closure $getProxiesCallback;
 
     /**
      * Get the proxies addresses.
